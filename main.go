@@ -21,7 +21,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 
 	port := os.Getenv("PORT")
@@ -39,6 +39,8 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+
+	log.Printf("Starting server on %s", port)
 
 	err = srv.ListenAndServe()
 	log.Fatal(err)
