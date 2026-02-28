@@ -25,7 +25,21 @@ services:
             - postgres-db-network
         depends_on:
             - postgres
-
+    
+    #pgbouncer:
+        #environment:
+           # DB_HOST: postgres
+          #  DB_USER: ${POSTGRES_USER}           # define credentials
+          #  DB_PASSWORD: ${POSTGRES_PASSWORD}       # define credentials
+          #  DB_port: 5432  
+          #  POOL_MODE: transaction    
+          #  ADMIN_USER: ${POSTGRES_USER}
+       # ports:
+         # - "6432:5432"
+      #  networks:
+           # - postgres-db-network
+      #  depends_on:
+           # - postgres    # define database
 volumes:
     postgres-db-volume:
         driver: local
