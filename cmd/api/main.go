@@ -1,12 +1,12 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"animenotify/internal/database"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -22,32 +22,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 	log.Println("testing")
 }
 
-var db *sql.DB
-
-func connectDB() {
-	psqInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("DB_NAME"),
-	)
-
-	var err error
-	db, err := sql.Open("postgres", psqInfo)
-	if err != nil {
-		log.Fatal("Database is unreachable: ", err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Successfully connected to the PostgreSQL database!")
-}
-
 //main Function
 
 func main() {
@@ -58,7 +32,7 @@ func main() {
 	}
 
 	//Database Connection
-	connectDB()
+	database.ConnectDB()
 
 	port := os.Getenv("PORT")
 	if port == "" {
