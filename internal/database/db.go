@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	_ "embed"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,9 @@ import (
 )
 
 var DB *sql.DB
+
+//go:embed schema.sql
+var schemaSQL string
 
 func ConnectDB() {
 
@@ -20,12 +24,12 @@ func ConnectDB() {
 		os.Getenv("POSTGRES_PASSWORD"),
 		os.Getenv("DB_NAME"),
 	)
+	var err error
 
-	DB, err := sql.Open("postgres", psqInfo)
+	DB, err = sql.Open("postgres", psqInfo)
 	if err != nil {
 		log.Fatal("Database is unreachable: ", err)
 	}
-	defer DB.Close()
 
 	err = DB.Ping()
 	if err != nil {
@@ -33,4 +37,14 @@ func ConnectDB() {
 	}
 
 	fmt.Println("Successfully connected to the PostgreSQL database!")
+
+	initSchema()
+}
+
+func initSchema() {
+	_, err := DB.Exec(schemaSQL)
+	if err != nil {
+		log.Fatal("Failed to initialize database schema: ", err)
+	}
+	fmt.Println("Database schema initialized successfully!")
 }
