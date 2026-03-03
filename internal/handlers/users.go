@@ -24,6 +24,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, "Invalid JSON data", http.StatusBadRequest)
+		return
 	}
 
 	// step 3 - Secure data / password hashing / convert plain text into data bytes / complex scramble algo
@@ -34,7 +35,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 	// step 4 - SQL insertion using place-holders
 	query := `
-		INSERT INTO users (username, email, password,)
+		INSERT INTO users (username, email, password)
 		VALUES ($1, $2, $3)
 		RETURNING user_id, created_at
 	`

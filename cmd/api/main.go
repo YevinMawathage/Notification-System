@@ -7,20 +7,10 @@ import (
 	"time"
 
 	"animenotify/internal/database"
+	"animenotify/internal/routing"
 
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 )
-
-func home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
-	w.Write([]byte("Entry Point"))
-	log.Println("testing")
-}
 
 //main Function
 
@@ -39,12 +29,12 @@ func main() {
 		port = "8080"
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
+	//Routers
+	router := routing.Routers()
 
 	srv := &http.Server{
 		Addr:         ":" + port,
-		Handler:      mux,
+		Handler:      router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 30 * time.Second,
