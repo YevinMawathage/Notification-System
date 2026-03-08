@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	authentication "animenotify/internal/auth"
 	"animenotify/internal/database"
 	"animenotify/internal/models"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -24,6 +26,11 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, "Invalid JSON data", http.StatusBadRequest)
+		return
+	}
+
+	if user.Username == "" || user.Email == "" || user.Password == "" {
+		http.Error(w, "Username, email, and password are required", http.StatusBadRequest)
 		return
 	}
 
@@ -48,8 +55,25 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	// step 6 - blank the password in case of revealing hashed password to the frontend
 	user.Password = ""
 
+	tokenString, err := authentication.GenerateToken(int(user.UserID))
+	if err != nil {
+		log.Println("TOKEN error", err)
+		http.Error(w, "Failed to create authentication error", http.StatusInternalServerError)
+		return
+	}
+
+	// Pack the final delivery box
+
+	response := struct {
+		User  models.User `json:"user"`
+		Token string      `json:"token"`
+	}{
+		User:  user,
+		Token: tokenString,
+	}
+
 	// step 7 - send http sttus codes and translted json back to frontend
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(response)
 }
