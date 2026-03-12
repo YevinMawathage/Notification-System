@@ -77,3 +77,78 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
 }
+
+// User Login
+
+func LoginUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var loginDetails struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&loginDetails)
+	if err != nil {
+		http.Error(w, "Invalid JSON data", http.StatusBadRequest)
+		return
+	}
+
+	if loginDetails.Email == "" || loginDetails.Password == "" {
+		http.Error(w, "Email or Password is required", http.StatusBadRequest)
+		return
+	}
+
+	var user models.User // box to hold database data
+
+	loginQuery := `
+			SELECT user_id, username, email, password 
+			FROM users
+			WHERE email = $1
+	`
+
+	err = database.DB.QueryRow(loginQuery, loginDetails.Email).Scan(
+		&user.UserID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+	)
+
+	if err != nil {
+		log.Println("Login DB Error", err)
+		http.Error(w, "INVALID Credentials", http.StatusUnauthorized)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDetails.Password))
+	if err != nil {
+		log.Println("LOGIN Password Error", err)
+		http.Error(w, "INVALID Credentials", http.StatusUnauthorized)
+		return
+	}
+
+	tokenString, err := authentication.GenerateToken(int(user.UserID))
+	if err != nil {
+		log.Println("TOKEN error", err)
+		http.Error(w, "Failed to create authentication error", http.StatusInternalServerError)
+		return
+	}
+
+	user.Password = ""
+
+	response := struct {
+		User  models.User `json:"user"`
+		Token string      `json:"token"`
+	}{
+		User:  user,
+		Token: tokenString,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+
+}

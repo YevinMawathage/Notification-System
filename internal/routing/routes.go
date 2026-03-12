@@ -14,6 +14,7 @@ func Routers() *http.ServeMux {
 	router := http.NewServeMux()
 	router.HandleFunc("/", home)
 	router.HandleFunc("POST /api/v1/users", handlers.RegisterUser)
+	router.HandleFunc("POST /api/v1/users/login", handlers.LoginUser)
 
 	return router
 }
