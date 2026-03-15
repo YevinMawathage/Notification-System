@@ -10,11 +10,54 @@ CREATE TABLE IF NOT EXISTS users (
 
 
 CREATE TABLE IF NOT EXISTS anime_shows (
+    -- Internal ID for our database relations (Subscriptions)
     anime_id SERIAL PRIMARY KEY,
-    release_year varchar(255),
-    Title varchar(255),
+    
+    -- Core Data
+    mal_id INTEGER UNIQUE NOT NULL, -- UNIQUE is required for our background worker's Upsert!
+    url TEXT,
+    title VARCHAR(255) NOT NULL,
+    title_english VARCHAR(255),
+    title_japanese VARCHAR(255),
+    title_synonyms TEXT[], -- PostgreSQL Array to hold the []string
+    
+    -- Trailer Info (Flattened)
+    trailer_youtube_id VARCHAR(100),
+    trailer_url TEXT,
+    trailer_embed_url TEXT,
+    
+    -- Details
+    show_type VARCHAR(50), -- Renamed from 'type' (SQL reserved word)
+    source VARCHAR(100),
+    episodes INTEGER, -- Allows NULL for your *int pointer
+    status VARCHAR(100),
+    airing BOOLEAN,
+    duration VARCHAR(100),
+    rating VARCHAR(100),
+    
+    -- Stats
+    score NUMERIC(4,2), -- Allows numbers like 8.75. Allows NULL for *float64
+    scored_by INTEGER,
+    rank INTEGER,
+    popularity INTEGER,
+    members INTEGER,
+    favorites INTEGER,
+    
+    -- Text Heavy Fields
     synopsis TEXT,
-    release_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    background TEXT,
+    
+    -- Release & Broadcast Info
+    season VARCHAR(50),
+    release_year INTEGER, -- Renamed from 'year' (SQL reserved word)
+    broadcast_day VARCHAR(50),
+    broadcast_time VARCHAR(50),
+    broadcast_timezone VARCHAR(50),
+    broadcast_string VARCHAR(255),
+    
+    -- Server Timestamps
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS Subscriptions (
