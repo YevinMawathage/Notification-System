@@ -152,3 +152,20 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 
 }
+
+// GetUserProfile is a PROTECTED route. You can only get here if you have a VIP pass.
+func GetUserProfile(w http.ResponseWriter, r *http.Request) {
+	// 1. Unzip the backpack and grab the sticky note the Bouncer left!
+	userID := r.Context().Value("userID")
+
+	// 2. Create a simple JSON response proving we know who they are
+	response := map[string]interface{}{
+		"message": "Welcome to the VIP Lounge! Your pass is valid.",
+		"user_id": userID,
+	}
+
+	// 3. Send it back to the frontend
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+}

@@ -8,6 +8,7 @@ import (
 
 	"animenotify/internal/database"
 	"animenotify/internal/routing"
+	"animenotify/internal/workers"
 
 	"github.com/joho/godotenv"
 )
@@ -42,6 +43,11 @@ func main() {
 
 	log.Printf("Starting server on %s", port)
 
+	log.Println("--- TESTING JIKAN API FETCH ---")
+	workers.FetchSeason()
+	log.Println("--- TEST COMPLETE ---")
+
 	err = srv.ListenAndServe()
 	log.Fatal(err)
+
 }

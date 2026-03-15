@@ -4,6 +4,7 @@ package routing
 // Rule 2 - Http Methods
 
 import (
+	authentication "animenotify/internal/auth"
 	"animenotify/internal/handlers"
 	"log"
 	"net/http"
@@ -15,7 +16,7 @@ func Routers() *http.ServeMux {
 	router.HandleFunc("/", home)
 	router.HandleFunc("POST /api/v1/users", handlers.RegisterUser)
 	router.HandleFunc("POST /api/v1/users/login", handlers.LoginUser)
-
+	router.HandleFunc("GET /api/v1/users/profile", authentication.Middleware(handlers.GetUserProfile))
 	return router
 }
 

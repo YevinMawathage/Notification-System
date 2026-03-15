@@ -12,7 +12,7 @@ func Middleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		authHeader := r.Header.Get("Authorization")
-		parts := strings.Split(authHeader, "")
+		parts := strings.Split(authHeader, " ")
 
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			http.Error(w, "Unauthorized - Invalid token Format", http.StatusUnauthorized)
