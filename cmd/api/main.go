@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	cronjob "animenotify/internal/cron"
 	"animenotify/internal/database"
 	"animenotify/internal/routing"
 	"animenotify/internal/workers"
@@ -46,6 +47,10 @@ func main() {
 	log.Println("--- TESTING JIKAN API FETCH ---")
 	workers.FetchSeason()
 	log.Println("--- TEST COMPLETE ---")
+
+	// CRON Scheduler for anime fetch
+	c := cronjob.CronScheduler()
+	defer c.Stop()
 
 	err = srv.ListenAndServe()
 	log.Fatal(err)
