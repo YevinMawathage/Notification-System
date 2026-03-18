@@ -31,7 +31,7 @@ func Middleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			ctx := context.WithValue(r.Context(), "userID", claims["user_id"])
+			ctx := context.WithValue(r.Context(), "UserID", claims["user_id"])
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Unauthorized - Invalid Token Data", http.StatusUnauthorized)
