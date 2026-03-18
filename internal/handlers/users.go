@@ -72,7 +72,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		Token: tokenString,
 	}
 
-	// step 7 - send http sttus codes and translted json back to frontend
+	// step 7 - send http status codes and translted json back to frontend
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)

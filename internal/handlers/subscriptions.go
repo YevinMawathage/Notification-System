@@ -44,3 +44,58 @@ func SubscribeToAnime(w http.ResponseWriter, r *http.Request) {
 		"message": "Successfuly Subscribed to the Anime!",
 	})
 }
+
+type SubscribedAnime struct {
+	AnimeID        int    `json:"anime_id"`
+	Title          string `json:"title"`
+	Title_Japanese string `json:"title_japanese"`
+	Synopsis       string `json:"synopsis"`
+	BroadcastDay   string `json:"broadcast_day"`
+	BroadcastTime  string `json:"broadcast_time"`
+}
+
+func GetSubscriptions(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("UserID")
+
+	query := `
+	SELECT 
+			a.anime_id, 
+			a.title, 
+			COALESCE(a.title_japanese, ''), 
+			COALESCE(a.synopsis, ''), 
+			COALESCE(a.broadcast_day, ''), 
+			COALESCE(a.broadcast_time, '')
+		FROM anime_shows a 
+		INNER JOIN subscriptions s ON a.anime_id = s.anime_id
+		WHERE s.user_id = $1;
+	`
+
+	rows, err := database.DB.Query(query, userID)
+	if err != nil {
+		http.Error(w, "Failed to Fetch Data", http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	shows := []SubscribedAnime{}
+
+	for rows.Next() {
+		var animeShow SubscribedAnime
+
+		// 8. Scan the SQL columns directly into our Go struct
+		err := rows.Scan(&animeShow.AnimeID, &animeShow.Title, &animeShow.Title_Japanese, &animeShow.Synopsis, &animeShow.BroadcastDay, &animeShow.BroadcastTime)
+		if err != nil {
+			log.Println("Error scanning anime row:", err)
+			continue // Skip this broken row and keep going!
+		}
+
+		// 9. Add the scanned show to our master list
+		shows = append(shows, animeShow)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(shows)
+
+}
