@@ -99,3 +99,37 @@ func GetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(shows)
 
 }
+
+func DeleteSubscription(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("UserID")
+
+	var requestBody struct {
+		AnimeID int `json:"anime_id"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil || requestBody.AnimeID == 0 {
+		http.Error(w, "Invalid request! ", http.StatusBadRequest)
+		return
+	}
+
+	query := `
+	DELETE FROM Subscriptions 
+	WHERE user_id = $1 AND anime_id = $2;
+	`
+
+	_, err = database.DB.Exec(query, userID, requestBody.AnimeID)
+	if err != nil {
+		log.Println("Unsubscribe DB Error:", err)
+		http.Error(w, "Failed to Unsubscribe!", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Unubscribed the Anime!",
+	})
+
+}

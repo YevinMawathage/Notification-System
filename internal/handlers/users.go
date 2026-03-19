@@ -156,7 +156,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 // GetUserProfile is a PROTECTED route. You can only get here if you have a VIP pass.
 func GetUserProfile(w http.ResponseWriter, r *http.Request) {
 	// 1. Unzip the backpack and grab the sticky note the Bouncer left!
-	userID := r.Context().Value("userID")
+	userID := r.Context().Value("UserID")
 
 	// 2. Create a simple JSON response proving we know who they are
 	response := map[string]interface{}{

@@ -19,6 +19,8 @@ func Routers() *http.ServeMux {
 	router.HandleFunc("GET /api/v1/users/profile", authentication.Middleware(handlers.GetUserProfile))
 	router.HandleFunc("POST /api/v1/users/subscribe", authentication.Middleware(handlers.SubscribeToAnime))
 	router.HandleFunc("GET /api/v1/users/subscribe/shows", authentication.Middleware(handlers.GetSubscriptions))
+	router.HandleFunc("DELETE /api/v1/users/unsubscribe", authentication.Middleware(handlers.DeleteSubscription))
+	router.HandleFunc("GET /api/v1/anime", handlers.GetAnimeList)
 	return router
 }
 
