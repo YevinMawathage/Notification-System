@@ -169,3 +169,82 @@ func GetUserProfile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+// User Profile Delete
+func UserProfileDelete(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("UserID")
+
+	query := `
+	DELETE FROM users
+	WHERE user_id = $1
+	`
+
+	_, err := database.DB.Exec(query, userID)
+	if err != nil {
+		http.Error(w, "Failed to Delete Data!", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "User Profile Deleted!",
+	})
+
+}
+
+type UpdateProfileInfo struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+func UserProfileUpdate(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("UserID")
+
+	var requestBody UpdateProfileInfo
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "Invalid Request! ", http.StatusBadRequest)
+		return
+	}
+
+	var currentUsername, currentEmail string
+
+	fetchQuery := `SELECT username, email FROM users WHERE user_id = $1`
+
+	err = database.DB.QueryRow(fetchQuery, userID).Scan(&currentUsername, &currentEmail)
+	if err != nil {
+		http.Error(w, "Failed to Retrieve user data", http.StatusInternalServerError)
+		return
+	}
+
+	if requestBody.Username != "" {
+		currentUsername = requestBody.Username
+	}
+
+	if requestBody.Email != "" {
+		currentEmail = requestBody.Email
+	}
+
+	updateQuery := `
+	UPDATE users
+	SET username = $1, email = $2
+	WHERE user_id = $3;
+	`
+
+	_, err = database.DB.Exec(updateQuery, currentUsername, currentEmail, userID)
+	if err != nil {
+		http.Error(w, "Failed to update profile!", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"Message":  "Updated Successfully",
+		"Username": currentUsername,
+		"Email":    currentEmail,
+	})
+
+}

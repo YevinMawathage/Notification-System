@@ -17,6 +17,8 @@ func Routers() *http.ServeMux {
 	router.HandleFunc("POST /api/v1/users", handlers.RegisterUser)
 	router.HandleFunc("POST /api/v1/users/login", handlers.LoginUser)
 	router.HandleFunc("GET /api/v1/users/profile", authentication.Middleware(handlers.GetUserProfile))
+	router.HandleFunc("DELETE /api/v1/users/remove", authentication.Middleware(handlers.UserProfileDelete))
+	router.HandleFunc("PATCH /api/v1/users/update", authentication.Middleware(handlers.UserProfileUpdate))
 	router.HandleFunc("POST /api/v1/users/subscribe", authentication.Middleware(handlers.SubscribeToAnime))
 	router.HandleFunc("GET /api/v1/users/subscribe/shows", authentication.Middleware(handlers.GetSubscriptions))
 	router.HandleFunc("DELETE /api/v1/users/unsubscribe", authentication.Middleware(handlers.DeleteSubscription))
