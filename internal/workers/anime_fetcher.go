@@ -14,13 +14,27 @@ type JikanResponse struct {
 	Data []models.AnimeBase `json:"data"`
 }
 
-func FetchSeason() {
-	url := "https://api.jikan.moe/v4/seasons/now"
-	log.Println("JIKAN API: ", url)
+func FetchCurrentSeason() {
+	log.Println("Fetching NEW (Currently Airing) Anime...")
+	FetchSeason("https://api.jikan.moe/v4/seasons/now")
+}
+
+func FetchUpcomingAnime() {
+	log.Println("Fetching UPCOMING Anime...")
+	FetchSeason("https://api.jikan.moe/v4/seasons/upcoming")
+}
+
+func FetchTopOldAnime() {
+	log.Println("Fetching OLD (Top Classics) Anime...")
+	FetchSeason("https://api.jikan.moe/v4/top/anime")
+}
+
+func FetchSeason(targetURL string) {
+	log.Println("JIKAN API: ", targetURL)
 
 	// Testing if we n reach the API
 
-	response, err := http.Get(url)
+	response, err := http.Get(targetURL)
 	if err != nil {
 		log.Println("CANT REACH JIKAN API", err)
 		return

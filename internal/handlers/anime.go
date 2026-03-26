@@ -20,6 +20,7 @@ type AnimeCard struct {
 func GetAnimeList(w http.ResponseWriter, r *http.Request) {
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
+	statusFilter := r.URL.Query().Get("status")
 
 	page := 1
 	limit := 10
@@ -43,11 +44,12 @@ func GetAnimeList(w http.ResponseWriter, r *http.Request) {
 			COALESCE(trailer_embed_url, ''),
 			COALESCE(score, 0)
 		FROM anime_shows
+		WHERE ($3 = '' OR status ILIKE '%' || $3 || '%')
 		ORDER BY anime_id ASC
 		LIMIT $1 OFFSET $2;
 	`
 
-	rows, err := database.DB.Query(query, limit, offset)
+	rows, err := database.DB.Query(query, limit, offset, statusFilter)
 	if err != nil {
 		http.Error(w, "Failed to Fetch Anime", http.StatusInternalServerError)
 		return

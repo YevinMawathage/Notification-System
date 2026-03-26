@@ -45,7 +45,7 @@ func main() {
 	log.Printf("Starting server on %s", port)
 
 	log.Println("--- TESTING JIKAN API FETCH ---")
-	workers.FetchSeason()
+	workers.FetchTopOldAnime()
 	log.Println("--- TEST COMPLETE ---")
 
 	// CRON Scheduler for anime fetch
