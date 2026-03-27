@@ -21,6 +21,7 @@ func GetAnimeList(w http.ResponseWriter, r *http.Request) {
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
 	statusFilter := r.URL.Query().Get("status")
+	searchFilter := r.URL.Query().Get("search")
 
 	page := 1
 	limit := 10
@@ -44,12 +45,13 @@ func GetAnimeList(w http.ResponseWriter, r *http.Request) {
 			COALESCE(trailer_embed_url, ''),
 			COALESCE(score, 0)
 		FROM anime_shows
-		WHERE ($3 = '' OR status ILIKE '%' || $3 || '%')
+		WHERE ($3 = '' OR status ILIKE '%' || $3 || '%') AND
+		WHERE ($4 = '' OR title ILIKE '%' || $4 || '%' OR title_japanese ILIKE '%' || $4 || '%')
 		ORDER BY anime_id ASC
 		LIMIT $1 OFFSET $2;
 	`
 
-	rows, err := database.DB.Query(query, limit, offset, statusFilter)
+	rows, err := database.DB.Query(query, limit, offset, statusFilter, searchFilter)
 	if err != nil {
 		http.Error(w, "Failed to Fetch Anime", http.StatusInternalServerError)
 		return

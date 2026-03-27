@@ -9,9 +9,9 @@ import (
 	cronjob "animenotify/internal/cron"
 	"animenotify/internal/database"
 	"animenotify/internal/routing"
-	"animenotify/internal/workers"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
 //main Function
@@ -34,9 +34,18 @@ func main() {
 	//Routers
 	router := routing.Routers()
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "content-type"},
+		AllowCredentials: true,
+	})
+
+	corsHandler := c.Handler(router)
+
 	srv := &http.Server{
 		Addr:         ":" + port,
-		Handler:      router,
+		Handler:      corsHandler,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 30 * time.Second,
@@ -44,13 +53,9 @@ func main() {
 
 	log.Printf("Starting server on %s", port)
 
-	log.Println("--- TESTING JIKAN API FETCH ---")
-	workers.FetchTopOldAnime()
-	log.Println("--- TEST COMPLETE ---")
-
 	// CRON Scheduler for anime fetch
-	c := cronjob.CronScheduler()
-	defer c.Stop()
+	cron := cronjob.CronScheduler()
+	defer cron.Stop()
 
 	err = srv.ListenAndServe()
 	log.Fatal(err)
