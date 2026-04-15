@@ -45,8 +45,7 @@ func GetAnimeList(w http.ResponseWriter, r *http.Request) {
 			COALESCE(trailer_embed_url, ''),
 			COALESCE(score, 0)
 		FROM anime_shows
-		WHERE ($3 = '' OR status ILIKE '%' || $3 || '%') AND
-		WHERE ($4 = '' OR title ILIKE '%' || $4 || '%' OR title_japanese ILIKE '%' || $4 || '%')
+		WHERE ($3 = '' OR status ILIKE '%' || $3 || '%') AND ($4 = '' OR title ILIKE '%' || $4 || '%' OR title_japanese ILIKE '%' || $4 || '%')
 		ORDER BY anime_id ASC
 		LIMIT $1 OFFSET $2;
 	`

@@ -25,21 +25,27 @@ services:
             - postgres-db-network
         depends_on:
             - postgres
+
     
-    #pgbouncer:
-        #environment:
-           # DB_HOST: postgres
-          #  DB_USER: ${POSTGRES_USER}           # define credentials
-          #  DB_PASSWORD: ${POSTGRES_PASSWORD}       # define credentials
-          #  DB_port: 5432  
-          #  POOL_MODE: transaction    
-          #  ADMIN_USER: ${POSTGRES_USER}
-       # ports:
-         # - "6432:5432"
-      #  networks:
-           # - postgres-db-network
-      #  depends_on:
-           # - postgres    # define database
+    api:
+        build: .
+        container_name: anime_backend
+        ports:
+          - "4000:4000"
+        environment: 
+            DB_HOST: postgres
+            DB_PORT: 5432
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            DB_NAME: ${DB_NAME}
+            PORT: 4000
+        networks:
+            - postgres-db-network
+        depends_on:
+            - postgres
+
+
+
 volumes:
     postgres-db-volume:
         driver: local
