@@ -73,11 +73,11 @@ func FetchSeason(targetURL string) {
 			show_type, source, episodes, status, airing, duration, rating,
 			score, scored_by, rank, popularity, members, favorites,
 			synopsis, background, season, release_year,
-			broadcast_day, broadcast_time, broadcast_timezone, broadcast_string
+			broadcast_day, broadcast_time, broadcast_timezone, broadcast_string,image_url
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
 			$11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-			$21, $22, $23, $24, $25, $26, $27, $28, $29, $30
+			$21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31
 		) 
 		ON CONFLICT (mal_id) 
 		DO UPDATE SET 
@@ -110,12 +110,16 @@ func FetchSeason(targetURL string) {
 			broadcast_time = EXCLUDED.broadcast_time,
 			broadcast_timezone = EXCLUDED.broadcast_timezone,
 			broadcast_string = EXCLUDED.broadcast_string,
+			image_url = EXCLUDED.image_url,
 			updated_at = CURRENT_TIMESTAMP;
 	`
 
 	savedCount := 0
 
 	for _, anime := range results.Data {
+
+		log.Printf("DEBUG: Title: %s | URL: '%s'\n", anime.Title, anime.Images.JPG.ImageURL)
+
 		_, err := database.DB.Exec(query,
 			anime.MalId, anime.Url, anime.Title, anime.TitleEnglish, anime.TitleJapanese,
 			pq.Array(anime.TitleSynonyms), // 🚨 Wraps the []string safely!
@@ -123,7 +127,7 @@ func FetchSeason(targetURL string) {
 			anime.Type, anime.Source, anime.Episodes, anime.Status, anime.Airing, anime.Duration, anime.Rating,
 			anime.Score, anime.ScoredBy, anime.Rank, anime.Popularity, anime.Members, anime.Favorites,
 			anime.Synopsis, anime.Background, anime.Season, anime.Year,
-			anime.Broadcast.Day, anime.Broadcast.Time, anime.Broadcast.Timezone, anime.Broadcast.String,
+			anime.Broadcast.Day, anime.Broadcast.Time, anime.Broadcast.Timezone, anime.Broadcast.String, anime.Images.JPG.ImageURL,
 		)
 
 		if err != nil {

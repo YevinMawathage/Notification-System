@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE IF NOT EXISTS anime_shows (
     -- Internal ID for our database relations (Subscriptions)
     anime_id SERIAL PRIMARY KEY,
@@ -20,6 +19,8 @@ CREATE TABLE IF NOT EXISTS anime_shows (
     title_english VARCHAR(255),
     title_japanese VARCHAR(255),
     title_synonyms TEXT[], -- PostgreSQL Array to hold the []string
+    image_url TEXT,
+
     
     -- Trailer Info (Flattened)
     trailer_youtube_id VARCHAR(100),

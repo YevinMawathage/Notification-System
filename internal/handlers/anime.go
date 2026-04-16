@@ -10,6 +10,7 @@ import (
 
 type AnimeCard struct {
 	AnimeID        int     `json:"anime_id"`
+	Url            string  `json:"image_url"`
 	Title          string  `json:"title"`
 	Title_Japanese string  `json:"title_japanese"`
 	Synopsis       string  `json:"synopsis"`
@@ -43,7 +44,8 @@ func GetAnimeList(w http.ResponseWriter, r *http.Request) {
 			COALESCE(title_japanese, ''), 
 			COALESCE(synopsis, ''), 
 			COALESCE(trailer_embed_url, ''),
-			COALESCE(score, 0)
+			COALESCE(score, 0),
+			COALESCE(image_url, '')
 		FROM anime_shows
 		WHERE ($3 = '' OR status ILIKE '%' || $3 || '%') AND ($4 = '' OR title ILIKE '%' || $4 || '%' OR title_japanese ILIKE '%' || $4 || '%')
 		ORDER BY anime_id ASC
@@ -64,7 +66,7 @@ func GetAnimeList(w http.ResponseWriter, r *http.Request) {
 		var list AnimeCard
 
 		// 8. Scan the SQL columns directly into our Go struct
-		err := rows.Scan(&list.AnimeID, &list.Title, &list.Title_Japanese, &list.Synopsis, &list.Trailer, &list.Score)
+		err := rows.Scan(&list.AnimeID, &list.Title, &list.Title_Japanese, &list.Synopsis, &list.Trailer, &list.Score, &list.Url)
 		if err != nil {
 			log.Println("Error scanning anime:", err)
 			continue // Skip this broken row and keep going!

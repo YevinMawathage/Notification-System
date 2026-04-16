@@ -49,6 +49,7 @@ type SubscribedAnime struct {
 	AnimeID        int    `json:"anime_id"`
 	Title          string `json:"title"`
 	Title_Japanese string `json:"title_japanese"`
+	Url            string `json:"image_url"`
 	Synopsis       string `json:"synopsis"`
 	BroadcastDay   string `json:"broadcast_day"`
 	BroadcastTime  string `json:"broadcast_time"`
@@ -61,7 +62,8 @@ func GetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	SELECT 
 			a.anime_id, 
 			a.title, 
-			COALESCE(a.title_japanese, ''), 
+			COALESCE(a.title_japanese, ''),
+			COALESCE(image_url, '') 
 			COALESCE(a.synopsis, ''), 
 			COALESCE(a.broadcast_day, ''), 
 			COALESCE(a.broadcast_time, '')

@@ -3,6 +3,7 @@ package models
 type AnimeBase struct {
 	MalId         int         `json:"mal_id"`
 	Url           string      `json:"url"`
+	Images        JikanImages `json:"images"`
 	Trailer       TrailerInfo `json:"trailer"`
 	Title         string      `json:"title"`
 	TitleEnglish  string      `json:"title_english"`
@@ -37,4 +38,12 @@ type TrailerInfo struct {
 	YoutubeID *string `json:"youtube_id"`
 	Url       *string `json:"url"`
 	EmbedUrl  *string `json:"embed_url"`
+}
+
+type JikanImageFormats struct {
+	ImageURL string `json:"image_url"`
+}
+
+type JikanImages struct {
+	JPG JikanImageFormats `json:"jpg"`
 }
