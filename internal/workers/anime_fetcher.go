@@ -118,8 +118,6 @@ func FetchSeason(targetURL string) {
 
 	for _, anime := range results.Data {
 
-		log.Printf("DEBUG: Title: %s | URL: '%s'\n", anime.Title, anime.Images.JPG.ImageURL)
-
 		_, err := database.DB.Exec(query,
 			anime.MalId, anime.Url, anime.Title, anime.TitleEnglish, anime.TitleJapanese,
 			pq.Array(anime.TitleSynonyms), // 🚨 Wraps the []string safely!

@@ -63,7 +63,7 @@ func GetSubscriptions(w http.ResponseWriter, r *http.Request) {
 			a.anime_id, 
 			a.title, 
 			COALESCE(a.title_japanese, ''),
-			COALESCE(image_url, '') 
+			COALESCE(a.image_url, ''),
 			COALESCE(a.synopsis, ''), 
 			COALESCE(a.broadcast_day, ''), 
 			COALESCE(a.broadcast_time, '')
@@ -86,7 +86,7 @@ func GetSubscriptions(w http.ResponseWriter, r *http.Request) {
 		var animeShow SubscribedAnime
 
 		// 8. Scan the SQL columns directly into our Go struct
-		err := rows.Scan(&animeShow.AnimeID, &animeShow.Title, &animeShow.Title_Japanese, &animeShow.Synopsis, &animeShow.BroadcastDay, &animeShow.BroadcastTime)
+		err := rows.Scan(&animeShow.AnimeID, &animeShow.Title, &animeShow.Title_Japanese, &animeShow.Url, &animeShow.Synopsis, &animeShow.BroadcastDay, &animeShow.BroadcastTime)
 		if err != nil {
 			log.Println("Error scanning anime row:", err)
 			continue // Skip this broken row and keep going!
