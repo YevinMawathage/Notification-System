@@ -1,121 +1,46 @@
 import Link from "next/link";
-import SubscribeButton from "../components/SubscribeButton";
+import AnimatedBackground from "../components/AnimatedBackground";
 
-// 1. Update the fetch engine to accept a page number
-async function getLiveAnime(page: number) {
-  try {
-    // We inject the page variable right into your Go URL!
-    const res = await fetch(`http://localhost:4000/api/v1/anime?page=${page}&limit=9`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      throw new Error(`Go API returned status: ${res.status}`);
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Error fetching anime:", error);
-    return []; 
-  }
-}
-
-// 2. Next.js automatically passes searchParams from the URL into Server Components!
-export default async function AnimeDashboard({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  
-  // 3. Extract the page number from the URL (default to page 1 if it's missing)
-  const params = await searchParams;
-  const pageStr = params?.page;
-  
-  const currentPage = typeof pageStr === "string" ? parseInt(pageStr, 10) : 1;
-  const validPage = isNaN(currentPage) || currentPage < 1 ? 1 : currentPage;
-
-  // 4. Call Go with the current page
-  const liveAnimeData = await getLiveAnime(validPage);
-
+export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-gray-50 p-10">
-      <div className="max-w-6xl mx-auto">
+    <main className="relative min-h-screen flex items-center justify-center overflow-hidden bg-zinc-950 font-sans selection:bg-indigo-500/30">
+      
+      {/* Background Animation */}
+      <AnimatedBackground />
 
-        {liveAnimeData.length === 0 ? (
-          <div className="text-center bg-white p-10 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-700">No Anime Found</h3>
-            <p className="text-gray-500 mt-2">
-              We reached the end of the list, or the database is empty!
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {liveAnimeData.map((anime: any) => (
-                <div
-                  key={anime.anime_id}
-                  className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
-                >
-                  <img
-                    src={anime.image_url || "https://via.placeholder.com/400x500?text=No+Image+Available"}
-                    alt={`${anime.title} cover`}
-                    className="w-full h-64 object-cover object-center"
-                  />
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h2 className="text-xl font-bold text-gray-800 truncate" title={anime.title}>
-                      {anime.title}
-                    </h2>
-                    <p className="text-sm text-gray-500 mb-3 font-medium">
-                      {anime.title_japanese || "N/A"}
-                    </p>
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded">
-                        Score: {anime.score || "N/A"}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 text-sm mb-6 line-clamp-3 flex-grow">
-                      {anime.synopsis || "No synopsis available."}
-                    </p>
-                    
-                    {/* 🚨 Our new Smart Subscribe Button */}
-                    <SubscribeButton animeId={anime.anime_id} animeTitle={anime.title} />
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Hero Content */}
+      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center">
+        
+        <div className="inline-block mb-6 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 backdrop-blur-md">
+          <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">
+            Real-Time Notifications
+          </span>
+        </div>
 
-            {/* 5. The Pagination Controls */}
-            <div className="flex justify-center items-center gap-6 mt-12 mb-8">
-              {validPage > 1 ? (
-                <Link 
-                  href={`/?page=${validPage - 1}`} 
-                  className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  &larr; Previous Page
-                </Link>
-              ) : (
-                <div className="px-6 py-2 border border-transparent opacity-0 cursor-default">&larr; Previous Page</div> // Invisible placeholder to keep UI centered
-              )}
-
-              <span className="text-gray-600 font-medium">
-                Page {validPage}
-              </span>
-
-              {/* If Go returned exactly 10 items, assume there is a next page */}
-              {liveAnimeData.length === 9 ? (
-                <Link 
-                  href={`/?page=${validPage + 1}`} 
-                  className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Next Page &rarr;
-                </Link>
-              ) : (
-                <div className="px-6 py-2 border border-transparent opacity-0 cursor-default">Next Page &rarr;</div>
-              )}
-            </div>
-          </>
-        )}
+        <h1 className="text-5xl sm:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-zinc-100 to-zinc-500 tracking-tight leading-[1.1] mb-6 drop-shadow-sm">
+          Never Miss An <br /> 
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">Anime Episode.</span>
+        </h1>
+        
+        <p className="text-zinc-400 text-lg sm:text-xl font-medium mb-10 max-w-2xl leading-relaxed">
+          Track your favorite shows, configure instant custom alerts, and stay up to date with the latest broadcasts in real-time.
+        </p>
+        
+        <Link 
+          href="/dashboard" 
+          className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 font-bold text-white bg-indigo-600 rounded-full overflow-hidden transition-transform hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(79,70,229,0.4)]"
+        >
+          {/* Button shine effect */}
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+          
+          <span className="relative text-lg">Enter Dashboard</span>
+          <svg className="w-5 h-5 relative transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </Link>
+        
       </div>
+      
     </main>
   );
 }

@@ -22,9 +22,7 @@ export default function Navbar() {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-    if (pathname === "/login" || pathname === "/signup") return null;
-
-  return () => window.removeEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLogout = () => {
@@ -33,8 +31,6 @@ export default function Navbar() {
     setIsAuthenticated(false);
     router.push("/login");
   };
-
-  if (pathname === "/login" || pathname === "/signup") return null;
 
   return (
     <div className={`fixed top-0 inset-x-0 z-50 flex justify-center transition-all duration-500 ease-out ${isScrolled ? "pt-4" : "pt-8"}`}>

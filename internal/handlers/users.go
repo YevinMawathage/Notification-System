@@ -153,21 +153,49 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type UserProfile struct {
+	ID        int    `json:"user_id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	CreatedAt string `json:"created_at"`
+}
+
 // GetUserProfile is a PROTECTED route. You can only get here if you have a VIP pass.
 func GetUserProfile(w http.ResponseWriter, r *http.Request) {
-	// 1. Unzip the backpack and grab the sticky note the Bouncer left!
-	userID := r.Context().Value("UserID")
 
-	// 2. Create a simple JSON response proving we know who they are
-	response := map[string]interface{}{
-		"message": "Welcome to the VIP Lounge! Your pass is valid.",
-		"user_id": userID,
+	userID := r.Context().Value("UserID")
+	if userID == nil {
+		http.Error(w, `{"error": "Unauthorized. Invalid token context."}`, http.StatusUnauthorized)
+		return
 	}
 
-	// 3. Send it back to the frontend
+	// 2. Query the Database for this specific user
+	query := `
+		SELECT user_id, username, email, created_at 
+		FROM users 
+		WHERE user_id = $1;
+	`
+
+	var profile UserProfile
+
+	// We use QueryRow because we are only looking for exactly ONE user
+	err := database.DB.QueryRow(query, userID).Scan(
+		&profile.ID,
+		&profile.Username,
+		&profile.Email,
+		&profile.CreatedAt,
+	)
+
+	if err != nil {
+		log.Println("Database error fetching profile:", err)
+		http.Error(w, `{"error": "Failed to load user profile"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// 3. Send the profile data back to Next.js
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(profile)
 }
 
 // User Profile Delete

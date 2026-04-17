@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AlertModal from "@/components/AlertModal";
+import ConfirmModal from "@/components/ConfirmModal";
+import AnimeCard from "@/components/AnimeCard";
 
 export default function SubscriptionsPage() {
   const router = useRouter();
@@ -10,6 +13,15 @@ export default function SubscriptionsPage() {
   const [subscribedAnime, setSubscribedAnime] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Modal States
+  const [alertConfig, setAlertConfig] = useState<{isOpen: boolean, title: string, message: string, type: "info" | "error" | "success"}>({
+    isOpen: false, title: "", message: "", type: "info"
+  });
+  
+  const [confirmConfig, setConfirmConfig] = useState<{isOpen: boolean, animeId: number | null, animeTitle: string}>({
+    isOpen: false, animeId: null, animeTitle: ""
+  });
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -45,10 +57,16 @@ export default function SubscriptionsPage() {
   }, [router]);
 
   // 🚨 NEW: The function to handle the Unsubscribe action
-  const handleUnsubscribe = async (animeId: number, animeTitle: string) => {
-    // 1. Confirm with the user first (Good UX!)
-    if (!confirm(`Are you sure you want to stop receiving alerts for ${animeTitle}?`)) return;
+  const requestUnsubscribe = (animeId: number, animeTitle: string) => {
+    setConfirmConfig({ isOpen: true, animeId, animeTitle });
+  };
 
+  const confirmUnsubscribe = async () => {
+    const { animeId, animeTitle } = confirmConfig;
+    if (!animeId) return;
+
+    // Reset Confirm Modal
+    setConfirmConfig({ isOpen: false, animeId: null, animeTitle: "" });
     const token = localStorage.getItem("anime_auth_token");
 
     try {
@@ -69,65 +87,86 @@ export default function SubscriptionsPage() {
       // 3. React Magic: Instantly remove the anime from the screen!
       setSubscribedAnime((prevAnime) => prevAnime.filter((anime) => anime.anime_id !== animeId));
       
+      setAlertConfig({
+        isOpen: true,
+        title: "Success",
+        message: `Successfully unsubscribed from ${animeTitle}.`,
+        type: "success"
+      });
+      
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      setAlertConfig({
+        isOpen: true,
+        title: "Error",
+        message: err.message,
+        type: "error"
+      });
     }
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center font-bold text-xl">Loading your anime...</div>;
+    return <div className="min-h-screen bg-zinc-950 flex items-center justify-center font-semibold text-lg text-zinc-400">Loading your anime...</div>;
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-10">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen bg-zinc-950 text-zinc-100 px-8 pb-8 pt-36 sm:px-12 sm:pb-12 sm:pt-40 font-sans selection:bg-indigo-500/30">
+      <div className="max-w-6xl mx-auto relative">
         
+        {/* Modals placed outside main flow */}
+        <ConfirmModal 
+          isOpen={confirmConfig.isOpen}
+          title="Unsubscribe?"
+          message={`Are you sure you want to stop receiving alerts for "${confirmConfig.animeTitle}"?`}
+          confirmText="Yes, Unsubscribe"
+          cancelText="Cancel"
+          onConfirm={confirmUnsubscribe}
+          onCancel={() => setConfirmConfig({ isOpen: false, animeId: null, animeTitle: "" })}
+        />
+        
+        <AlertModal 
+          isOpen={alertConfig.isOpen}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          onClose={() => setAlertConfig({ ...alertConfig, isOpen: false })}
+        />
+        
+        <h1 className="text-3xl font-bold text-zinc-100 mb-8 tracking-tight">Your Subscriptions</h1>
         
         {error && (
-          <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-6">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl mb-8 backdrop-blur-sm shadow-inner text-sm font-medium">
             {error}
           </div>
         )}
 
         {subscribedAnime.length === 0 && !error ? (
-          <div className="text-center bg-white p-10 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-700">No Subscriptions Yet</h3>
-            <p className="text-gray-500 mt-2">
-              Go back to the dashboard and subscribe to some anime to receive notifications!
+          <div className="text-center bg-zinc-900/50 p-12 rounded-3xl border border-zinc-800/80 backdrop-blur-sm">
+            <h3 className="text-lg font-medium text-zinc-200 tracking-tight">No Subscriptions Yet</h3>
+            <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
+              Head back to the dashboard and pick some shows to start getting notifications!
             </p>
+            <Link href="/" className="inline-block mt-6 px-6 py-2.5 bg-indigo-600/90 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-md shadow-indigo-900/20">
+              Browse Anime
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 w-full">
             {subscribedAnime.map((anime: any) => (
-              <div
-                key={anime.anime_id}
-                className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col border-l-4 border-l-blue-500"
-              >
-                <div className="p-6 flex flex-col flex-grow">
-                  <h2 className="text-xl font-bold text-gray-800 truncate" title={anime.title}>
-                    {anime.title}
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-3 font-medium">
-                    {anime.title_japanese || "N/A"}
-                  </p>
-                  
-                  <div className="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-sm font-bold text-green-600 flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      Alerts Active
-                    </span>
-                    
-                    {/* 🚨 NEW: Connected the button to our function! */}
-                    <button 
-                      onClick={() => handleUnsubscribe(anime.anime_id, anime.title)}
-                      className="text-sm text-red-500 hover:text-red-700 font-semibold transition-colors cursor-pointer"
-                    >
-                      Unsubscribe
-                    </button>
-
-                  </div>
-                </div>
-              </div>
+              <AnimeCard 
+                key={anime.anime_id} 
+                anime={anime}
+                actionButton={
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); requestUnsubscribe(anime.anime_id, anime.title); }}
+                    className="w-full relative overflow-hidden bg-red-500/10 hover:bg-red-500 text-red-300 hover:text-white text-[11px] font-semibold py-1.5 px-3 rounded border border-red-500/20 hover:border-red-400 transition-all duration-300 backdrop-blur-md shadow-sm group/btn flex items-center justify-center gap-1.5"
+                  >
+                    <svg className="w-3 h-3 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Unsubscribe
+                  </button>
+                }
+              />
             ))}
           </div>
         )}
