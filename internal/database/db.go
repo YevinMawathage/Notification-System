@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -25,15 +26,28 @@ func ConnectDB() {
 		os.Getenv("DB_NAME"),
 	)
 	var err error
+	var counts int
 
-	DB, err = sql.Open("postgres", psqInfo)
-	if err != nil {
-		log.Fatal("Database is unreachable: ", err)
-	}
+	for {
+		DB, err = sql.Open("postgres", psqInfo)
+		if err != nil {
+			log.Println("Postgres not ready yet...")
+		} else {
+			err = DB.Ping()
+			if err == nil {
+				log.Println("Successfully connected to the database!")
+				break // We connected! Exit the loop and continue booting the app.
+			}
+			log.Println("Ping failed...")
+		}
 
-	err = DB.Ping()
-	if err != nil {
-		panic(err)
+		if counts > 10 {
+			log.Fatal("Database completely failed to start after 20 seconds. Panicking!", err)
+		}
+
+		log.Println("Waiting 2 seconds for Database to boot...")
+		time.Sleep(2 * time.Second)
+		counts++
 	}
 
 	fmt.Println("Successfully connected to the PostgreSQL database!")

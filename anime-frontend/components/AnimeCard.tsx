@@ -28,6 +28,8 @@ export default function AnimeCard({ anime, actionButton }: { anime: any, actionB
           <img
             src={anime.image_url || "https://via.placeholder.com/300x450?text=No+Image"}
             alt={`${anime.title} cover`}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           />
           

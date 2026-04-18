@@ -145,7 +145,7 @@ export default function SubscriptionsPage() {
             <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
               Head back to the dashboard and pick some shows to start getting notifications!
             </p>
-            <Link href="/" className="inline-block mt-6 px-6 py-2.5 bg-indigo-600/90 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-md shadow-indigo-900/20">
+            <Link href="/dashboard" className="inline-block mt-6 px-6 py-2.5 bg-indigo-600/90 hover:bg-indigo-500 text-white font-medium rounded-xl transition-all shadow-md shadow-indigo-900/20">
               Browse Anime
             </Link>
           </div>

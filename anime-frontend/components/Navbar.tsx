@@ -12,8 +12,11 @@ export default function Navbar() {
 
   // Re-check auth status every time the URL path changes
   useEffect(() => {
-    const token = localStorage.getItem("anime_auth_token");
-    setIsAuthenticated(!!token); // Converts token existence to true/false
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem("anime_auth_token");
+      setIsAuthenticated(!!token); // Converts token existence to true/false
+    };
+    checkAuthStatus();
   }, [pathname]);
 
   // Scroll effect for dynamic floating design
@@ -22,9 +25,8 @@ export default function Navbar() {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-    if (pathname === "/login" || pathname === "/signup") return null;
 
-  return () => window.removeEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLogout = () => {
