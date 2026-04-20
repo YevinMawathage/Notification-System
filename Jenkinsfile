@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent any //agent
 
     environment {
         COMPOSE_PROJECT_NAME = "Anime_Notify"
