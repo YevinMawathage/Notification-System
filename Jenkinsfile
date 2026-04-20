@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_PROJECT_NAME = "Anime_Notify"
+        COMPOSE_PROJECT_NAME = "anime_notify"
     }
 
     tools {
