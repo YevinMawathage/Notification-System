@@ -5,6 +5,11 @@ pipeline {
         COMPOSE_PROJECT_NAME = "Anime_Notify"
     }
 
+    tools {
+        go 'Go-Installer'
+        nodejs 'Node-Installer'
+    }
+
     stages {
         stage('Code Analysis & Testing') {
 
