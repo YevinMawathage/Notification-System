@@ -23,6 +23,8 @@ func Routers() *http.ServeMux {
 	router.HandleFunc("GET /api/v1/users/subscribe/shows", authentication.Middleware(handlers.GetSubscriptions))
 	router.HandleFunc("DELETE /api/v1/users/unsubscribe", authentication.Middleware(handlers.DeleteSubscription))
 	router.HandleFunc("GET /api/v1/anime", handlers.GetAnimeList)
+
+	router.HandleFunc("GET /api/v1/health", handlers.HealthCheck)
 	return router
 }
 

@@ -65,6 +65,23 @@ services:
             - NODE_ENV=development
         networks:
             - postgres-db-network
+    
+
+    jenkins: 
+        image: jenkins/jenkins:lts
+        privileged: true
+        user: root 
+        ports:
+          - 8080:8080
+          - 50000:50000
+        container_name: jenkins
+        networks:
+            - postgres-db-network
+        volumes:
+            - jenkins_data:/var/jenkins_home
+            - /var/run/docker.sock:/var/run/docker.sock 
+            - /usr/bin/docker:/usr/bin/docker
+            - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
 
 
 volumes:
@@ -74,6 +91,9 @@ volumes:
           type: none
           o: bind
           device: ./data
+    jenkins_data:
+
+    
 networks:
     postgres-db-network:
         driver: bridge
