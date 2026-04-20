@@ -26,7 +26,7 @@ pipeline {
                     steps {
                         echo "Testing Next App..."
                         dir('anime-frontend') {
-                            sh 'npm ci'
+                            sh 'npm install'
                             sh 'npm run build'
                         }
                     }
