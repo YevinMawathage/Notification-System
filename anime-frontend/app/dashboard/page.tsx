@@ -5,8 +5,6 @@ import AnimeCard from "../../components/AnimeCard";
 // 1. Update the fetch engine to accept a page number
 async function getLiveAnime(page: number) {
   try {
-    // We inject the page variable right into your Go URL!
-    // Since cards are roughly 2x smaller, let's fetch more items to fill the grid nicely
     const res = await fetch(`http://api:4000/api/v1/anime?page=${page}&limit=24`, {
       cache: "no-store",
     });
@@ -15,13 +13,13 @@ async function getLiveAnime(page: number) {
       throw new Error(`Go API returned status: ${res.status}`);
     }
 
-    const rawText = await res.text();
+    const safeRes = res.clone();
+    const rawText = await safeRes.text();
 
     try {
       return rawText ? JSON.parse(rawText) : [];
-    } catch (parseError) {
+    } catch {
       console.error("CRITICAL: Go API returned invalid JSON!");
-      console.error("The exact JS error was:", parseError);
       console.error("Raw Output from Go:", rawText);
       return []; 
     }
