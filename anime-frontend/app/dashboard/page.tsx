@@ -15,7 +15,17 @@ async function getLiveAnime(page: number) {
       throw new Error(`Go API returned status: ${res.status}`);
     }
 
-    return await res.json();
+    const rawText = await res.text();
+
+    try {
+      return rawText ? JSON.parse(rawText) : [];
+    } catch (parseError) {
+      console.error("CRITICAL: Go API returned invalid JSON!");
+      console.error("The exact JS error was:", parseError);
+      console.error("Raw Output from Go:", rawText);
+      return []; 
+    }
+
   } catch (error) {
     console.error("Error fetching anime:", error);
     return []; 
