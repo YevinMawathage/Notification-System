@@ -36,8 +36,15 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo "Building Docker Images..."
-                sh 'docker compose build --no-cache'
+                echo "Requesting secure secrets from the Vault..."
+                
+                withCredentials([file(credentialsId: 'anime-env-file', variable: 'SECRET_ENV')]) {
+
+                    sh 'cp $SECRET_ENV .env'
+
+                    echo "Building Docker Images..."
+                    sh 'docker compose build --no-cache'
+                }
             }
         }
         
