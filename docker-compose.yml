@@ -74,7 +74,6 @@ volumes:
           type: none
           o: bind
           device: ./data
-    jenkins_data:
 
     
 networks:
