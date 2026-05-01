@@ -5,7 +5,7 @@ import AnimeCard from "../../components/AnimeCard";
 // 1. Update the fetch engine to accept a page number
 async function getLiveAnime(page: number) {
   try {
-    const res = await fetch(`http://api:4000/api/v1/anime?page=${page}&limit=24`, {
+    const res = await fetch(`http://localhost:4000/api/v1/anime?page=${page}&limit=24`, {
       cache: "no-store",
     });
 

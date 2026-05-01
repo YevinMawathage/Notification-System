@@ -12,7 +12,7 @@ import (
 func CronScheduler() *cron.Cron {
 	c := cron.New()
 
-	_, err := c.AddFunc("@daily", func() {
+	_, err := c.AddFunc("@every 1m", func() {
 
 		log.Println("⏰ CRON TRIGGERED: Starting Daily Data Pipeline...")
 
