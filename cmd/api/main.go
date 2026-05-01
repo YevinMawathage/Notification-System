@@ -14,7 +14,7 @@ import (
 	"github.com/rs/cors"
 )
 
-//main Function test
+//main Function
 
 func main() {
 
